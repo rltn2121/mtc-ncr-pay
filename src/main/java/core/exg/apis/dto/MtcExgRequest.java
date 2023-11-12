@@ -21,7 +21,7 @@ public class MtcExgRequest {
     private String curC;
 
     /* 충전 금액 */
-    private Double trxAmt;
+    private Long trxAmt;
 
     /* 일련번호 */
     /* 결제 일련번호는 결제에서 충전 요청이 들어온 경우에 필수 사항 */
