@@ -2,8 +2,8 @@ package core.pay.apis.controller;
 
 import lombok.RequiredArgsConstructor;
 import core.pay.apis.MtcPayApi;
-import core.pay.apis.dto.MtcNcrPayRequest;
-import core.pay.apis.dto.MtcNcrPayResponse;
+import core.dto.MtcNcrPayRequest;
+import core.dto.MtcNcrPayResponse;
 import core.pay.queue.PayRequestProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

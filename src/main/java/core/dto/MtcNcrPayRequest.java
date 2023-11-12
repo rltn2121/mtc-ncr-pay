@@ -1,4 +1,4 @@
-package core.pay.apis.dto;
+package core.dto;
 
 import lombok.Data;
 import lombok.Getter;

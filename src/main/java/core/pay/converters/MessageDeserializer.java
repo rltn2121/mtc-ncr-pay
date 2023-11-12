@@ -1,6 +1,6 @@
 package core.pay.converters;
 
-import core.pay.apis.dto.MtcNcrPayRequest;
+import core.dto.MtcNcrPayRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.SerializationException;

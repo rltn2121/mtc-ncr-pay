@@ -1,13 +1,12 @@
 package core.pay.queue;
 
 import core.exg.apis.dto.MtcExgRequest;
-import core.pay.apis.dto.MtcResultRequest;
-import core.pay.apis.dto.TransferResultDto;
-import core.pay.apis.service.MtcPayService;
+import core.dto.MtcResultRequest;
+import core.service.MtcPayService;
 import lombok.RequiredArgsConstructor;
 import core.Repository.SdaMainMasRepository;
 import core.domain.SdaMainMas;
-import core.pay.apis.dto.MtcNcrPayRequest;
+import core.dto.MtcNcrPayRequest;
 import core.domain.SdaMainMasId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +54,6 @@ public class PayRequestConsumer {
                                @Header(KafkaHeaders.RECEIVED_TIMESTAMP) long timestamp ,
                                @Header(KafkaHeaders.OFFSET) long offset
     ) {
-
         log.info("############구독시작한다###############{}" , payReqInfo.toString());
         MtcResultRequest resultDto = new MtcResultRequest();
         SdaMainMas tempAcInfo = sdaMainMasRepository.

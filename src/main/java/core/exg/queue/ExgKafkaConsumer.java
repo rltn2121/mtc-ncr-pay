@@ -1,10 +1,7 @@
 package core.exg.queue;
 
 import core.Repository.SdaMainMasRepository;
-import core.domain.SdaMainMas;
-import core.domain.SdaMainMasId;
-import core.pay.apis.dto.MtcNcrPayRequest;
-import core.pay.apis.dto.TransferWiseDto;
+import core.dto.MtcNcrPayRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +12,6 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.net.URI;
 
 @Component
 @RequiredArgsConstructor

@@ -1,10 +1,10 @@
-package core.pay.apis.service;
+package core.service;
 
 import core.domain.SdaMainMas;
 import lombok.RequiredArgsConstructor;
 import core.Repository.SdaMainMasRepository;
-import core.pay.apis.dto.MtcNcrPayRequest;
-import core.pay.apis.dto.MtcNcrPayResponse;
+import core.dto.MtcNcrPayRequest;
+import core.dto.MtcNcrPayResponse;
 import core.domain.SdaMainMasId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

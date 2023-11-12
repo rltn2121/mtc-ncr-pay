@@ -1,7 +1,7 @@
 package core.pay.queue;
 
 import lombok.RequiredArgsConstructor;
-import core.pay.apis.dto.MtcNcrPayRequest;
+import core.dto.MtcNcrPayRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
