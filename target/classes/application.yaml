@@ -1,0 +1,18 @@
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_NODE1:3.37.4.10:9092},${KAFKA_NODE2:15.165.81.7:9092},${KAFKA_NODE3:54.180.190.136:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: practice22201785
+      enable-auto-commit: off
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: core.pay.converters.MessageDeserializer
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://15.165.34.151:5432/mtc_db}
+    username: ${DATABASE_USERNAME:team9}
+    password: ${DATABASE_PASSWORD:cocteam9(}
+    driver-class-name: org.postgresql.Driver
+

@@ -1,0 +1,70 @@
+variables:
+  DOCKER_REGISTRY: 006046112659.dkr.ecr.ap-northeast-2.amazonaws.com/coc
+  AWS_DEFAULT_REGION: ap-northeast-2
+  EKS_NAMESPACE: coc-mtc
+  SERVICE_PORT: 8080
+
+stages:
+  - package
+  - build
+  - deploy
+package:
+  image: hit1414/maven-openjdk17
+  stage: package
+  script:
+    - 'mvn  package -DskipTests'
+  artifacts:
+    paths:
+      - target/*.jar
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  tags:
+    - runner9
+
+
+
+docker_build:
+  image: docker:latest
+  stage: build
+  services:
+    - docker:19-dind
+  before_script:
+    - apk add --no-cache curl jq python3 py3-pip
+    - pip install awscli
+    - aws configure list
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $DOCKER_REGISTRY
+
+  script:
+    - export TIMETAG=`echo $(date +%Y%m%d)`
+    - docker build -t $DOCKER_REGISTRY/$CI_PROJECT_NAME:$TIMETAG -f .gitlab/Dockerfile .
+    - docker push $DOCKER_REGISTRY/$CI_PROJECT_NAME:$TIMETAG
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  tags:
+    - runner9
+
+deploy:
+  image:
+    name: hit1414/awskube:1.0
+    entrypoint: [ '' ]
+  stage: deploy
+  before_script:
+    - aws configure list
+  script:
+    - export TIMETAG=`echo $(date +%Y%m%d)`
+    - kubectl config view
+    - kubectl config get-contexts
+    - kubectl get pods -n $EKS_NAMESPACE || true
+    - sed -i -e "s#{{PN}}#$CI_PROJECT_NAME#g" -e "s#{{REPO}}#$DOCKER_REGISTRY#g" -e "s#{{VERS}}#$TIMETAG#g" -e "s#{{NS}}#$EKS_NAMESPACE#g" -e "s#{{PORT}}#$SERVICE_PORT#g" $EKS_DEPLOYMENT_YAML_PATH
+    - cat $EKS_DEPLOYMENT_YAML_PATH
+    - kubectl delete -f $EKS_DEPLOYMENT_YAML_PATH || true
+    - kubectl apply -f $EKS_DEPLOYMENT_YAML_PATH
+    # - kubectl rollout restart deployment -n $EKS_DEFAULT_NAMESPACE admin-mgmt-deploy
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  tags:
+    - runner9
+

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{PN}}-deployment
+  namespace: {{NS}}
+  labels:
+    app: {{PN}}-pod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{PN}}-pod
+  template:
+    metadata:
+      labels:
+        app: {{PN}}-pod
+    spec:
+      containers:
+        - name: {{PN}}
+          image: {{REPO}}/{{PN}}:{{VERS}}
+          imagePullPolicy: Always
+          command: ["java"]
+          args: ["-jar", "/app.jar"]
+          ports:
+            - containerPort: {{PORT}}
+      hostAliases:
+        - ip: 100.200.3.10
+          hostnames:
+            - "broker1.devconfl.shinhan.com"
+        - ip: 100.200.4.10
+          hostnames:
+            - "broker2.devconfl.shinhan.com"
+        - ip: 100.200.5.10
+          hostnames:
+            - "broker3.devconfl.shinhan.com"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{PN}}-svc
+  namespace: {{NS}}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{PN}}-pod
+  ports:
+    - protocol: TCP
+      port: {{PORT}}
+      targetPort: {{PORT}}
