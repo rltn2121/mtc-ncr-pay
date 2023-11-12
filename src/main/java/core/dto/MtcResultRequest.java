@@ -19,4 +19,5 @@ public class MtcResultRequest {
     private String aprvSno;
     private Double trxAmt;
     private Double nujkJan;
+    private String errMsg;
 }

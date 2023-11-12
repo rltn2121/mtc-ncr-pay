@@ -1,5 +1,6 @@
 package core.pay.queue;
 
+import core.dto.MtcNcrPayResponse;
 import core.exg.apis.dto.MtcExgRequest;
 import core.dto.MtcResultRequest;
 import core.service.MtcPayService;
@@ -25,17 +26,14 @@ import java.time.format.DateTimeFormatter;
 @Component
 @RequiredArgsConstructor
 public class PayRequestConsumer {
-
     private static final Logger log = LoggerFactory.getLogger(PayRequestProducer.class);
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final WebClient webClient;
     private final SdaMainMasRepository sdaMainMasRepository;
     private final MtcPayService mtcPayService;
 
-
     public String getTimeString()
     {
-
         LocalDate now = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         String formatedNow = now.format(formatter);
@@ -56,6 +54,7 @@ public class PayRequestConsumer {
     ) {
         log.info("############구독시작한다###############{}" , payReqInfo.toString());
         MtcResultRequest resultDto = new MtcResultRequest();
+        MtcNcrPayResponse payResponse = new MtcNcrPayResponse();
         SdaMainMas tempAcInfo = sdaMainMasRepository.
                 findById(new SdaMainMasId(payReqInfo.getAcno(), payReqInfo.getCurC())).orElseThrow();
         Double ac_jan = tempAcInfo.getAc_jan();
@@ -71,11 +70,12 @@ public class PayRequestConsumer {
                 resultDto.setAprvSno(payReqInfo.getPayAcser());
                 //결제처리한다
                 try{
-                    mtcPayService.withdraw(payReqInfo);
+                    payResponse = mtcPayService.withdraw(payReqInfo);
                     //성공했으면 result 큐에 넣어줄 값 셋팅한다.
                     resultDto.setKey("SIMPLE_SUCCESS");
                     resultDto.setUpmuG(1);
                     resultDto.setNujkJan(ac_jan);
+                    resultDto.setErrMsg(payResponse.getErrStr());
                 }
                 catch(Exception e){
                     log.info("$$$withdraw error : {}" , e.toString());
@@ -83,6 +83,7 @@ public class PayRequestConsumer {
                     resultDto.setKey("SIMPLE_FAIL");
                     resultDto.setUpmuG(2);
                     resultDto.setNujkJan(ac_jan);
+                    resultDto.setErrMsg(e.toString());
                 }
                 //결과를 result 에 넣는다. ( result 큐에서 거래내역 넣어줌 )
                 kafkaTemplate.send("mtc.ncr.result", resultDto.getKey() , resultDto);
@@ -107,6 +108,7 @@ public class PayRequestConsumer {
             resultDto.setKey("SIMPLE_FAIL");
             resultDto.setUpmuG(2);
             resultDto.setNujkJan(ac_jan);
+            resultDto.setErrMsg(e.toString());
             kafkaTemplate.send("mtc.ncr.result", resultDto.getKey() , resultDto);
         }
     }
