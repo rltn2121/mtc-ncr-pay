@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter;
 /* ----------------------------------------------------- */
 
 @RestController
-@RequestMapping("/exchange")
+@RequestMapping("/charge")
 @RequiredArgsConstructor
 public class MtcExgController implements MtcExgApi {
 
