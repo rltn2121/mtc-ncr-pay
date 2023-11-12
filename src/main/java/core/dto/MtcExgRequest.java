@@ -1,4 +1,4 @@
-package core.exg.apis.dto;
+package core.dto;
 
 import lombok.*;
 
@@ -21,7 +21,7 @@ public class MtcExgRequest {
     private String curC;
 
     /* 충전 금액 */
-    private Long trxAmt;
+    private Double trxAmt;
 
     /* 일련번호 */
     /* 결제 일련번호는 결제에서 충전 요청이 들어온 경우에 필수 사항 */

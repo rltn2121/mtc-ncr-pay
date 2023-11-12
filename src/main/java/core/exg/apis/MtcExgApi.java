@@ -1,6 +1,6 @@
 package core.exg.apis;
 
-import core.exg.apis.dto.MtcExgRequest;
+import core.dto.MtcExgRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

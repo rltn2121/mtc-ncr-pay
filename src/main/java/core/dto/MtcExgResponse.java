@@ -1,4 +1,4 @@
-package core.exg.apis.dto;
+package core.dto;
 
 import lombok.Getter;
 import lombok.Setter;

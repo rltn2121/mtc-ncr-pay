@@ -1,7 +1,7 @@
 package core.exg.service;
 
-import core.exg.apis.dto.MtcExgRequest;
-import core.exg.apis.dto.MtcExgResponse;
+import core.dto.MtcExgRequest;
+import core.dto.MtcExgResponse;
 import core.exg.queue.ExgKafkaProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
