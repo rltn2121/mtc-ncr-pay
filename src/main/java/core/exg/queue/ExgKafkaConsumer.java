@@ -5,7 +5,9 @@ import core.domain.SdaMainMas;
 import core.domain.SdaMainMasId;
 import core.dto.MtcExgRequest;
 import core.dto.MtcExgResponse;
+import core.dto.MtcNcrPayRequest;
 import core.dto.MtcResultRequest;
+import core.exg.service.MtcExgService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +28,8 @@ public class ExgKafkaConsumer {
 
     private static final Logger log = LoggerFactory.getLogger(ExgKafkaProducer.class);
     private final KafkaTemplate<String, Object> kafkaTemplate;
-    private final WebClient webClient;
     private final SdaMainMasRepository sdaMainMasRepository;
+    private final MtcExgService exgService;
 
     /* 충전 요청 큐 구독 ing */
     @KafkaListener(topics = "mtc.ncr.exgRequest")
@@ -68,11 +70,10 @@ public class ExgKafkaConsumer {
             {
                 log.info("@@영은 충전 금액 부족 error : 현재 금액 {}, 충전 요청 금액 {}", KRW_jan, exgReqInfo.getTrxAmt());
 
-                // 충전 불가로 result 큐에 넣어줄 값 셋팅한다.
-                resultRequest.setKey("FAIL");
                 // 충전 실패
+                resultRequest.setKey("FAIL");
                 resultRequest.setUpmuG(4);
-//                resultRequest.setErrCode("DEP27001");
+                resultRequest.setErrMsg("충전 잔액이 부족합니다.");
 
                 // result 큐로 send
                 kafkaTemplate.send("mtc.ncr.result", resultRequest.getKey() , resultRequest);
@@ -83,14 +84,29 @@ public class ExgKafkaConsumer {
                 try {
                     log.info("@@영은 충전 시도 시작!");
 
-                    // 충전 불가로 result 큐에 넣어줄 값 셋팅한다.
-                    resultRequest.setKey("FAIL");
-                    // 충전 실패
-                    resultRequest.setUpmuG(4);
-//                resultRequest.setErrCode("DEP27001");
+                    exgService.exchangeService(exgReqInfo);
+
+                    // 충전 성공
+                    // 업무구분에 따라서 결제 서비스 큐에 넣을지 결과 큐에 넣을지 결정 필요
+                    resultRequest.setKey("SUCCESS");
+                    resultRequest.setUpmuG(2);
+
+                    // 결제큐로 send
+                    if(exgReqInfo.getUpmuG() == 1) {
+//                        MtcNcrPayRequest
+//                        kafkaTemplate.send("mtc.ncr.payRequest", )
+                    }
                 }
                 catch (Exception e) {
+                    log.info("@@영은 서비스 자체 error");
 
+                    // 충전 실패
+                    resultRequest.setKey("FAIL");
+                    resultRequest.setUpmuG(4);
+                    resultRequest.setErrMsg("충전 중 에러가 발생했습니다. 다시 시도하세요.");
+
+                    // result 큐로 send
+                    kafkaTemplate.send("mtc.ncr.result", resultRequest.getKey() , resultRequest);
                 }
             }
         }
