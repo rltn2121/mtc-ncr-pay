@@ -28,7 +28,7 @@ public class MtcPayService {
            log.info("$$$결제성공 {} " , sdaMainMas.toString());
            payResponse.setResult(1);
         }
-        catch( Exception e )
+        catch( Exception e)
         {
             payResponse.setResult(-1);
             payResponse.setErrStr(e.toString());

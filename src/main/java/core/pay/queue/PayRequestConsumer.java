@@ -1,11 +1,13 @@
 package core.pay.queue;
 
+import core.exg.apis.dto.MtcExgRequest;
+import core.pay.apis.dto.MtcResultRequest;
+import core.pay.apis.dto.TransferResultDto;
 import core.pay.apis.service.MtcPayService;
 import lombok.RequiredArgsConstructor;
 import core.Repository.SdaMainMasRepository;
 import core.domain.SdaMainMas;
 import core.pay.apis.dto.MtcNcrPayRequest;
-import core.pay.apis.dto.TransferWiseDto;
 import core.domain.SdaMainMasId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +19,9 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.net.URI;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 @Component
 @RequiredArgsConstructor
@@ -30,6 +34,20 @@ public class PayRequestConsumer {
     private final MtcPayService mtcPayService;
 
 
+    public String getTimeString()
+    {
+
+        LocalDate now = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+        String formatedNow = now.format(formatter);
+
+        LocalTime now2 = LocalTime.now();         // 현재시간 출력
+        DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("HHmmss");
+        String formatedNow2 = now2.format(formatter2);
+
+        return formatedNow+formatedNow2;
+    }
+
     @KafkaListener(topics = "mtc.ncr.core.payRequest")
     public void consumeMessage(@Payload MtcNcrPayRequest payReqInfo ,
                                @Header(name = KafkaHeaders.RECEIVED_KEY , required = false) String key ,
@@ -39,47 +57,59 @@ public class PayRequestConsumer {
     ) {
 
         log.info("############구독시작한다###############{}" , payReqInfo.toString());
-
+        MtcResultRequest resultDto = new MtcResultRequest();
         SdaMainMas tempAcInfo = sdaMainMasRepository.
-                                findById(new SdaMainMasId(payReqInfo.getAcno() , payReqInfo.getCurC())).orElseThrow();
+                findById(new SdaMainMasId(payReqInfo.getAcno(), payReqInfo.getCurC())).orElseThrow();
         Double ac_jan = tempAcInfo.getAc_jan();
-
-        log.info ("#####ac_jan {} , {}" , ac_jan , tempAcInfo.toString());
-
-        if(ac_jan > payReqInfo.getTrxAmt()) // 계좌 잔액이 결제요청금액보다 큰 경우
+        log.info("#####ac_jan {} , {}", ac_jan, tempAcInfo.toString());
+        try
         {
-            //결제처리한다
-            mtcPayService.withdraw(payReqInfo);
-            //결과를 result 에 넣는다. ( result 큐에서 거래내역 넣어줌 )
-
-
+            if (ac_jan > payReqInfo.getTrxAmt()) // 계좌 잔액이 결제요청금액보다 큰 경우
+            {
+                resultDto.setAcno(payReqInfo.getAcno());
+                resultDto.setCurC(payReqInfo.getCurC());
+                resultDto.setTrxdt(payReqInfo.getTrxDt());
+                resultDto.setTrxAmt(payReqInfo.getTrxAmt());
+                resultDto.setAprvSno(payReqInfo.getPayAcser());
+                //결제처리한다
+                try{
+                    mtcPayService.withdraw(payReqInfo);
+                    //성공했으면 result 큐에 넣어줄 값 셋팅한다.
+                    resultDto.setKey("SIMPLE_SUCCESS");
+                    resultDto.setUpmuG(1);
+                    resultDto.setNujkJan(ac_jan);
+                }
+                catch(Exception e){
+                    log.info("$$$withdraw error : {}" , e.toString());
+                    //실패했으면 result 큐에 넣어줄 값 셋팅한다.
+                    resultDto.setKey("SIMPLE_FAIL");
+                    resultDto.setUpmuG(2);
+                    resultDto.setNujkJan(ac_jan);
+                }
+                //결과를 result 에 넣는다. ( result 큐에서 거래내역 넣어줌 )
+                kafkaTemplate.send("mtc.ncr.result", resultDto.getKey() , resultDto);
+            }
+            else //결제요청금액이 잔액보다 큰 경우
+            {
+                // 충전 큐에 넣는다.
+                MtcExgRequest exgRequest = new MtcExgRequest();
+                exgRequest.setAcno(payReqInfo.getAcno());
+                exgRequest.setAcser(payReqInfo.getPayAcser());
+                exgRequest.setCurC(payReqInfo.getCurC());
+                exgRequest.setTrxAmt(payReqInfo.getTrxAmt());
+                kafkaTemplate.send("mtc.ncr.exgRequest", "2" , exgRequest);
+                // 업무구분 , 결제 일련번호 , 결제요청금액 , 고객번호
+            }
         }
-        else //결제요청금액이 잔액보다 큰 경우
+        catch(Exception e)
         {
-            // 충전 큐에 넣는다.
-
-            // 충전 후 결제 재요청여부 , 결제 일련번호 , 결제요청금액 , 고객번호
+            log.info("$$$$$ 결제하다가 에러난다 : {}" , e.toString());
+            log.info("$$$withdraw error : {}" , e.toString());
+            //실패했으면 result 큐에 넣어줄 값 셋팅한다.
+            resultDto.setKey("SIMPLE_FAIL");
+            resultDto.setUpmuG(2);
+            resultDto.setNujkJan(ac_jan);
+            kafkaTemplate.send("mtc.ncr.result", resultDto.getKey() , resultDto);
         }
-
-        // 다른파드 호출할 때도 이런식으로 하면 될거같음.
-        /*
-        String response  = webClient.post()
-                .uri(URI.create("https://api.sandbox.transferwise.tech/v3/quotes"))
-                .bodyValue(new TransferWiseDto("USD", "KRW" , 200L,null))
-                .exchangeToMono(clientResponse -> clientResponse.bodyToMono(String.class))
-                .block();
-
-        kafkaTemplate.send("coc.submit", "22201785" , response)
-                .whenComplete((result , ex) -> {
-                    if( ex == null)
-                    {
-                        log.info(" 잘 들어갔음 --> {} " , result.getProducerRecord().key());
-                    } else {
-                        log.error("error ");
-                    }
-                });
-                */
-
     }
-
 }
