@@ -72,31 +72,47 @@ public class PayRequestConsumer {
                 try{
                     payResponse = mtcPayService.withdraw(payReqInfo);
                     //성공했으면 result 큐에 넣어줄 값 셋팅한다.
-                    resultDto.setKey("SIMPLE_SUCCESS");
-                    resultDto.setUpmuG(1);
-                    resultDto.setNujkJan(ac_jan);
-                    resultDto.setErrMsg(payResponse.getErrStr());
+                    if(payResponse.getResult()==1)
+                    {
+                        resultDto.setUpmuG(1);
+                        resultDto.setNujkJan(ac_jan- payReqInfo.getTrxAmt());
+                        //결과를 result 에 넣는다. ( result 큐에서 거래내역 넣어줌 )
+                        kafkaTemplate.send("mtc.ncr.result", "SUCCESS", resultDto);
+                    }
+                    else
+                    {
+                        resultDto.setUpmuG(3);
+                        resultDto.setNujkJan(ac_jan);
+                        resultDto.setErrMsg(payResponse.getErrStr());
+                        //결과를 result 에 넣는다. ( result 큐에서 거래내역 넣어줌 )
+                        kafkaTemplate.send("mtc.ncr.result", "FAIL", resultDto);
+                    }
+
                 }
                 catch(Exception e){
                     log.info("$$$withdraw error : {}" , e.toString());
                     //실패했으면 result 큐에 넣어줄 값 셋팅한다.
-                    resultDto.setKey("SIMPLE_FAIL");
-                    resultDto.setUpmuG(2);
+                    resultDto.setUpmuG(3);
                     resultDto.setNujkJan(ac_jan);
                     resultDto.setErrMsg(e.toString());
+                    kafkaTemplate.send("mtc.ncr.result", "FAIL", resultDto);
                 }
-                //결과를 result 에 넣는다. ( result 큐에서 거래내역 넣어줌 )
-                kafkaTemplate.send("mtc.ncr.result", resultDto.getKey() , resultDto);
+
             }
             else //결제요청금액이 잔액보다 큰 경우
             {
                 // 충전 큐에 넣는다.
                 MtcExgRequest exgRequest = new MtcExgRequest();
+                exgRequest.set
                 exgRequest.setAcno(payReqInfo.getAcno());
                 exgRequest.setAcser(payReqInfo.getPayAcser());
                 exgRequest.setCurC(payReqInfo.getCurC());
                 exgRequest.setTrxAmt(payReqInfo.getTrxAmt());
-                kafkaTemplate.send("mtc.ncr.exgRequest", "2" , exgRequest);
+                exgRequest.setUpmuG(2);
+
+
+
+                kafkaTemplate.send("mtc.ncr.exgRequest", "PAY" , exgRequest);
                 // 업무구분 , 결제 일련번호 , 결제요청금액 , 고객번호
             }
         }
@@ -105,11 +121,10 @@ public class PayRequestConsumer {
             log.info("$$$$$ 결제하다가 에러난다 : {}" , e.toString());
             log.info("$$$withdraw error : {}" , e.toString());
             //실패했으면 result 큐에 넣어줄 값 셋팅한다.
-            resultDto.setKey("SIMPLE_FAIL");
             resultDto.setUpmuG(2);
             resultDto.setNujkJan(ac_jan);
             resultDto.setErrMsg(e.toString());
-            kafkaTemplate.send("mtc.ncr.result", resultDto.getKey() , resultDto);
+            kafkaTemplate.send("mtc.ncr.result", "FAIL" , resultDto);
         }
     }
 }

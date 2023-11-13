@@ -10,16 +10,13 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class PayRequestProducer {
-
     private static final Logger log = LoggerFactory.getLogger(PayRequestProducer.class);
     private final KafkaTemplate<String, Object> kafkaTemplate;
     public void produceMessage(MtcNcrPayRequest mtcNcrPayRequest) {
         log.info("------> kafka : produce message : " + mtcNcrPayRequest.toString());
-
         String payAcser = mtcNcrPayRequest.getPayAcser();
         // topic , key, value
-        // 결제 토픽의 key는 결제 일련번호로 삼는다.
-        kafkaTemplate.send("mtc.ncr.core.payRequest", mtcNcrPayRequest.getPayAcser() , mtcNcrPayRequest);
-        //kafkaTemplate.send("coc.practice.22201785", "NEW" , mtcNcrPayRequest);
+        // 결제 토픽의 key는 NEW 로 생성한다.
+        kafkaTemplate.send("mtc.ncr.core.payRequest", "NEW" , mtcNcrPayRequest);
     }
 }

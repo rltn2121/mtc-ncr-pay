@@ -10,8 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MtcResultRequest {
-    private int sno;
-    private String key;
     private String acno;
     private String trxdt;
     private String curC;

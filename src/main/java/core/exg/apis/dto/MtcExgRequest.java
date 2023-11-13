@@ -12,7 +12,7 @@ public class MtcExgRequest {
     /* 업무구분             */
     /* 1 : 고객이 충전 요청  */
     /* 2 : 결제 중 충전 요청 */
-    private Long upmuG;
+    private int upmuG;
 
     /* 계좌번호 (고객번호) */
     private String acno;
