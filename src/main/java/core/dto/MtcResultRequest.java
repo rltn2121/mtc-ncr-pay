@@ -18,4 +18,5 @@ public class MtcResultRequest {
     private Double trxAmt;
     private Double nujkJan;
     private String errMsg;
+    private MtcNcrPayRequest payinfo;
 }

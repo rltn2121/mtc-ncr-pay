@@ -7,11 +7,13 @@ import core.domain.SdaMainMasId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.QueryHints;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 public interface SdaMainMasRepository extends JpaRepository<SdaMainMas, SdaMainMasId> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value ="10000")})
+    @Transactional(readOnly = false)
     Optional<SdaMainMas> findById(SdaMainMasId id);
 }

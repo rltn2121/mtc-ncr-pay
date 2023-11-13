@@ -45,7 +45,7 @@ public class PayRequestConsumer {
         return formatedNow+formatedNow2;
     }
 
-    @KafkaListener(topics = "mtc.ncr.payRequest")
+    @KafkaListener(topics = "mtc.ncr.core.payRequest")
     public void consumeMessage(@Payload MtcNcrPayRequest payReqInfo ,
                                @Header(name = KafkaHeaders.RECEIVED_KEY , required = false) String key ,
                                @Header(KafkaHeaders.RECEIVED_TOPIC ) String topic ,
@@ -55,10 +55,12 @@ public class PayRequestConsumer {
         log.info("############구독시작한다###############{}" , payReqInfo.toString());
         MtcResultRequest resultDto = new MtcResultRequest();
         MtcNcrPayResponse payResponse = new MtcNcrPayResponse();
+        log.info("pppppppp");
         SdaMainMas tempAcInfo = sdaMainMasRepository.
                 findById(new SdaMainMasId(payReqInfo.getAcno(), payReqInfo.getCurC())).orElseThrow();
+        log.info("dddddddd");
         Double ac_jan = tempAcInfo.getAc_jan();
-        log.info("#####ac_jan {} , {}", ac_jan, tempAcInfo.toString());
+        log.info("#####ac_jan {} , {}", Double.toString(ac_jan), tempAcInfo.toString());
         try
         {
             if (ac_jan > payReqInfo.getTrxAmt()) // 계좌 잔액이 결제요청금액보다 큰 경우
@@ -76,18 +78,19 @@ public class PayRequestConsumer {
                     {
                         resultDto.setUpmuG(1);
                         resultDto.setNujkJan(ac_jan- payReqInfo.getTrxAmt());
+                        resultDto.setPayinfo(payReqInfo);
                         //결과를 result 에 넣는다. ( result 큐에서 거래내역 넣어줌 )
                         kafkaTemplate.send("mtc.ncr.result", "SUCCESS", resultDto);
                     }
                     else
                     {
                         resultDto.setUpmuG(3);
+                        resultDto.setPayinfo(payReqInfo);
                         resultDto.setNujkJan(ac_jan);
                         resultDto.setErrMsg(payResponse.getErrStr());
                         //결과를 result 에 넣는다. ( result 큐에서 거래내역 넣어줌 )
                         kafkaTemplate.send("mtc.ncr.result", "FAIL", resultDto);
                     }
-
                 }
                 catch(Exception e){
                     log.info("$$$withdraw error : {}" , e.toString());
@@ -95,9 +98,9 @@ public class PayRequestConsumer {
                     resultDto.setUpmuG(3);
                     resultDto.setNujkJan(ac_jan);
                     resultDto.setErrMsg(e.toString());
+                    resultDto.setPayinfo(payReqInfo);
                     kafkaTemplate.send("mtc.ncr.result", "FAIL", resultDto);
                 }
-
             }
             else //결제요청금액이 잔액보다 큰 경우
             {
@@ -120,6 +123,7 @@ public class PayRequestConsumer {
             resultDto.setUpmuG(2);
             resultDto.setNujkJan(ac_jan);
             resultDto.setErrMsg(e.toString());
+            resultDto.setPayinfo(payReqInfo);
             kafkaTemplate.send("mtc.ncr.result", "FAIL" , resultDto);
         }
     }

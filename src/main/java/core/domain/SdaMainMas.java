@@ -10,6 +10,7 @@ import org.hibernate.annotations.Comment;
 @Getter
 @Setter
 @Entity
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name="cor_sda_main_mas")
