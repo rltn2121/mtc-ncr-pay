@@ -1,7 +1,7 @@
 package core.pay.queue;
 
+import core.dto.MtcExgRequest;
 import core.dto.MtcNcrPayResponse;
-import core.exg.apis.dto.MtcExgRequest;
 import core.dto.MtcResultRequest;
 import core.service.MtcPayService;
 import lombok.RequiredArgsConstructor;

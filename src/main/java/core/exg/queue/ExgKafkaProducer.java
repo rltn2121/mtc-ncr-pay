@@ -1,6 +1,6 @@
 package core.exg.queue;
 
-import core.exg.apis.dto.MtcExgRequest;
+import core.dto.MtcExgRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,8 +1,8 @@
 package core.exg.apis.controller;
 
 import core.exg.apis.MtcExgApi;
-import core.exg.apis.dto.MtcExgRequest;
-import core.exg.apis.dto.MtcExgSnoResponse;
+import core.dto.MtcExgRequest;
+import core.dto.MtcExgSnoResponse;
 import core.exg.queue.ExgKafkaProducer;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
