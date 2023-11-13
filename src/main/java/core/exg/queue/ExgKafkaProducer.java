@@ -24,5 +24,7 @@ public class ExgKafkaProducer {
 
         // topic , key, value
         // topic : mtc.ncr.core.exgRequest <-- 응답받들어온거 충전 일련번호 채번 후 먼저 던져주기
+        // 충전 토픽의 key : "PAY" (결제), "CUS" (직접환전)
+        kafkaTemplate.send("mtc.ncr.exgRequest", "CUS", exgRequest);
     }
 }
