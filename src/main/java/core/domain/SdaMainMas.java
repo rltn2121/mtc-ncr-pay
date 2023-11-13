@@ -12,7 +12,7 @@ import org.hibernate.annotations.Comment;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name="sda_main_mas")
+@Table(name="cor_sda_main_mas")
 @IdClass(SdaMainMasId.class)
 public class SdaMainMas {
 

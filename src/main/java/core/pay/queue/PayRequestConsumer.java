@@ -45,7 +45,7 @@ public class PayRequestConsumer {
         return formatedNow+formatedNow2;
     }
 
-    @KafkaListener(topics = "mtc.ncr.core.payRequest")
+    @KafkaListener(topics = "mtc.ncr.payRequest")
     public void consumeMessage(@Payload MtcNcrPayRequest payReqInfo ,
                                @Header(name = KafkaHeaders.RECEIVED_KEY , required = false) String key ,
                                @Header(KafkaHeaders.RECEIVED_TOPIC ) String topic ,

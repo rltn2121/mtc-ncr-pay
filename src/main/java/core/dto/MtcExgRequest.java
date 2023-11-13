@@ -28,4 +28,5 @@ public class MtcExgRequest{
 
     /* 결제 정보 */
     private MtcNcrPayRequest payInfo;
+
 }
