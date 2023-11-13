@@ -28,11 +28,4 @@ public class MtcExgRequest{
 
     /* 결제 정보 */
     private MtcNcrPayRequest payInfo;
-
-    public void setMtcNcrPayRequest(MtcNcrPayRequest mtcNcrPayRequest)
-    {
-        this.payInfo = mtcNcrPayRequest;
-    }
-
-
 }

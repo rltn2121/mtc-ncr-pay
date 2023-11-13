@@ -135,7 +135,14 @@ public class ExgKafkaConsumer {
             }
         }
         catch(Exception e) {
+            log.info("@@영은 서비스 자체 error");
 
+            // 충전 실패
+            resultRequest.setUpmuG(4);
+            resultRequest.setErrMsg("충전 중 에러가 발생했습니다. 다시 시도하세요.");
+
+            // result 큐로 send
+            kafkaTemplate.send("mtc.ncr.result", "FAIL", resultRequest);
         }
     }
 }
