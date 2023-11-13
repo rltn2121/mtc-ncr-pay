@@ -18,10 +18,13 @@ public class ExgKafkaProducer {
 
         log.info("@@영은 kafka : exchange produce message : " + exgRequest.toString());
 
+        // 여기서 충전큐에 넣는 경우는 직접 충전 요청이 들어온 경우임
+        // --> payYn 에 'N' 넣기
+        exgRequest.setPayYn("N");
+
         // topic , key, value
-        //kafkaTemplate.send("coc.practice.22201785", "NEW" , mtcNcrPayRequest);
         // topic : mtc.ncr.core.exgRequest <-- 응답받들어온거 충전 일련번호 채번 후 먼저 던져주기
-        // 충전 토픽의 key는 충전 일련번호로 삼는다.
-        kafkaTemplate.send("mtc.ncr.exgRequest", exgRequest.getUpmuG().toString() , exgRequest);
+        // 충전 토픽의 key : "PAY" (결제), "CUS" (직접환전)
+        kafkaTemplate.send("mtc.ncr.exgRequest", "CUS", exgRequest);
     }
 }

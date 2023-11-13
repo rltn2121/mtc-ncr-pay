@@ -26,5 +26,6 @@ public class MtcExgRequest extends MtcNcrPayRequest{
     /* 충전 일련번호 : 화면 충전 요청들어올 때 채번 */
     private String acser;
 
-    private MtcNcrPayRequest payRequest;
+    /* 결제 정보 */
+    private MtcNcrPayRequest payInfo;
 }
