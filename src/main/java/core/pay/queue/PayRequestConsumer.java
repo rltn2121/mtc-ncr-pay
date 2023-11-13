@@ -103,15 +103,11 @@ public class PayRequestConsumer {
             {
                 // 충전 큐에 넣는다.
                 MtcExgRequest exgRequest = new MtcExgRequest();
-                exgRequest.set
+                exgRequest.setPayRequest(payReqInfo);
                 exgRequest.setAcno(payReqInfo.getAcno());
-                exgRequest.setAcser(payReqInfo.getPayAcser());
                 exgRequest.setCurC(payReqInfo.getCurC());
-                exgRequest.setTrxAmt(payReqInfo.getTrxAmt());
-                exgRequest.setUpmuG(2);
-
-
-
+                exgRequest.setPayYn("Y");
+                exgRequest.setTrxAmt(payReqInfo.getTrxAmt()-ac_jan);
                 kafkaTemplate.send("mtc.ncr.exgRequest", "PAY" , exgRequest);
                 // 업무구분 , 결제 일련번호 , 결제요청금액 , 고객번호
             }
