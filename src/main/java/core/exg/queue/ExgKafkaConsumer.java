@@ -44,9 +44,10 @@ public class ExgKafkaConsumer {
 
         log.info ("@@영은 kafka 'mtc.ncr.exgRequest' 잡음! --> {}" , exgReqInfo.toString());
 
+        //원화 금액 정보
         SdaMainMas nowAcInfo = sdaMainMasRepository.
                                         findById(new SdaMainMasId(exgReqInfo.getAcno() , "KRW")).orElseThrow();
-        log.info ("@@영은 현재 KRW = {}" , nowAcInfo);
+        log.info ("@@영은 현재 KRW 금액 = {}" , nowAcInfo);
 
         Double KRW_jan = nowAcInfo.getAc_jan(); // 현재 원화 금액
 
@@ -62,8 +63,14 @@ public class ExgKafkaConsumer {
             resultRequest.setTrxAmt(exgReqInfo.getTrxAmt());
             // 거래일자
             resultRequest.setTrxdt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd")));
-            // 충전 일련번호
-            resultRequest.setAprvSno(exgReqInfo.getAcser());
+
+            if("Y".equals(exgReqInfo.getPayYn())) {
+                // 결제 일련번호
+                resultRequest.setAprvSno(exgReqInfo.getPayInfo().getPayAcser());
+            } else {
+                // 충전 일련번호
+                resultRequest.setAprvSno(exgReqInfo.getAcser());
+            }
 
             // 해당 계좌번호의 KRW 금액 < 환전 요청 금액 이면 ERROR
             if(KRW_jan < exgReqInfo.getTrxAmt())
@@ -71,42 +78,59 @@ public class ExgKafkaConsumer {
                 log.info("@@영은 충전 금액 부족 error : 현재 금액 {}, 충전 요청 금액 {}", KRW_jan, exgReqInfo.getTrxAmt());
 
                 // 충전 실패
-                resultRequest.setKey("FAIL");
                 resultRequest.setUpmuG(4);
                 resultRequest.setErrMsg("충전 잔액이 부족합니다.");
 
                 // result 큐로 send
-                kafkaTemplate.send("mtc.ncr.result", resultRequest.getKey() , resultRequest);
+                kafkaTemplate.send("mtc.ncr.result", "FAIL", resultRequest);
             }
-            // 해당 계좌번호의 KRW 금액 >= 환전 요청 금액 -> 충전 서비스 태우기
+            // 해당 계좌번호의 KRW 금액 >= 환전 요청 금액 --> 충전 서비스 태우기
             else
             {
                 try {
                     log.info("@@영은 충전 시도 시작!");
 
+                    // 충전 프로세스
                     exgService.exchangeService(exgReqInfo);
 
                     // 충전 성공
-                    // 업무구분에 따라서 결제 서비스 큐에 넣을지 결과 큐에 넣을지 결정 필요
-                    resultRequest.setKey("SUCCESS");
                     resultRequest.setUpmuG(2);
 
-                    // 결제큐로 send
-                    if(exgReqInfo.getUpmuG() == 1) {
-//                        MtcNcrPayRequest
-//                        kafkaTemplate.send("mtc.ncr.payRequest", )
+                    // 결제에서 들어온 경우에는 결제큐와 결과큐에 모두 적재
+                    if("Y".equals(exgReqInfo.getPayYn())) {
+                        MtcNcrPayRequest payRequest = new MtcNcrPayRequest();
+
+                        // 계좌번호(고객번호)
+                        payRequest.setAcno(exgReqInfo.getPayInfo().getAcno());
+
+                        // 통화코드
+                        payRequest.setCurC(exgReqInfo.getPayInfo().getCurC());
+
+                        // 거래처
+                        payRequest.setTrxPlace(exgReqInfo.getPayInfo().getTrxPlace());
+
+                        // 거래금액
+                        payRequest.setTrxAmt(exgReqInfo.getPayInfo().getTrxAmt());
+
+                        // 거래일자
+                        payRequest.setTrxDt(exgReqInfo.getPayInfo().getTrxDt());
+
+                        // 결제 일련번호
+                        payRequest.setPayAcser(exgReqInfo.getPayInfo().getPayAcser());
+
+                        kafkaTemplate.send("mtc.ncr.payRequest", "NEW", payRequest); // 결제 kew는 "NEW"
                     }
+                    kafkaTemplate.send("mtc.ncr.result", "SUCCESS", resultRequest);
                 }
                 catch (Exception e) {
                     log.info("@@영은 서비스 자체 error");
 
                     // 충전 실패
-                    resultRequest.setKey("FAIL");
                     resultRequest.setUpmuG(4);
                     resultRequest.setErrMsg("충전 중 에러가 발생했습니다. 다시 시도하세요.");
 
                     // result 큐로 send
-                    kafkaTemplate.send("mtc.ncr.result", resultRequest.getKey() , resultRequest);
+                    kafkaTemplate.send("mtc.ncr.result", "FAIL", resultRequest);
                 }
             }
         }
