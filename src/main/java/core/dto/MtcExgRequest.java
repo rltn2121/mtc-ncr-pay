@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class MtcExgRequest extends MtcNcrPayRequest{
+public class MtcExgRequest{
 
     /* 결제여부             */
     /* Y : 결제 중 충전 요청 */
@@ -28,4 +28,11 @@ public class MtcExgRequest extends MtcNcrPayRequest{
 
     /* 결제 정보 */
     private MtcNcrPayRequest payInfo;
+
+    public void setMtcNcrPayRequest(MtcNcrPayRequest mtcNcrPayRequest)
+    {
+        this.payInfo = mtcNcrPayRequest;
+    }
+
+
 }
