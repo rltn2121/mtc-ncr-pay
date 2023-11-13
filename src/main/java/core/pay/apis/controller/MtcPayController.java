@@ -11,6 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @RestController
 @RequestMapping("/pay")
 @RequiredArgsConstructor
@@ -23,9 +26,7 @@ public class MtcPayController implements MtcPayApi {
     @Override
     public ResponseEntity<?> pay(MtcNcrPayRequest mtcNcrPayRequest) {
         MtcNcrPayResponse  mtcNcrPayResponse= new MtcNcrPayResponse();
-
-        mtcNcrPayRequest.setPayAcser(mtcNcrPayRequest.getTrxDt()
-                    .concat( Double.toString(((Math.random() * 8999999999.0) + 1000000000 )%1000000000))) ;
+        mtcNcrPayRequest.setPayAcser( LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
 
         log.info("$$$request => " , mtcNcrPayRequest.toString());
         kafka.produceMessage(mtcNcrPayRequest);
@@ -33,3 +34,4 @@ public class MtcPayController implements MtcPayApi {
         return ResponseEntity.ok(mtcNcrPayResponse);
     }
 }
+
