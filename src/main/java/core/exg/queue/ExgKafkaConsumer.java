@@ -62,7 +62,7 @@ public class ExgKafkaConsumer {
             // 충전 요청 금액
             resultRequest.setTrxAmt(exgReqInfo.getTrxAmt());
             // 거래일자
-            resultRequest.setTrxdt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd")));
+            resultRequest.setTrxdt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
 
             if("Y".equals(exgReqInfo.getPayYn())) {
                 // 결제 일련번호
