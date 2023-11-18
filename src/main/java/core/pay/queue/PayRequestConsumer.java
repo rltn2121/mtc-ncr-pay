@@ -55,10 +55,8 @@ public class PayRequestConsumer {
         log.info("############구독시작한다###############{}" , payReqInfo.toString());
         MtcResultRequest resultDto = new MtcResultRequest();
         MtcNcrPayResponse payResponse = new MtcNcrPayResponse();
-        log.info("pppppppp");
         SdaMainMas tempAcInfo = sdaMainMasRepository.
                 findById(new SdaMainMasId(payReqInfo.getAcno(), payReqInfo.getCurC())).orElseThrow();
-        log.info("dddddddd");
         Double ac_jan = tempAcInfo.getAc_jan();
         log.info("#####ac_jan {} , {}", Double.toString(ac_jan), tempAcInfo.toString());
         try
@@ -89,6 +87,7 @@ public class PayRequestConsumer {
                         resultDto.setNujkJan(ac_jan);
                         resultDto.setErrMsg(payResponse.getErrStr());
                         //결과를 result 에 넣는다. ( result 큐에서 거래내역 넣어줌 )
+                        log.info("#####RESULT 큐에 넣어준다. : {}" , resultDto.toString());
                         kafkaTemplate.send("mtc.ncr.result", "FAIL", resultDto);
                     }
                 }
@@ -109,6 +108,7 @@ public class PayRequestConsumer {
                 exgRequest.setPayInfo(payReqInfo);
                 exgRequest.setAcno(payReqInfo.getAcno());
                 exgRequest.setCurC(payReqInfo.getCurC());
+                exgRequest.setAcser(payReqInfo.getPayAcser());
                 exgRequest.setPayYn("Y");
                 exgRequest.setTrxAmt(payReqInfo.getTrxAmt()-ac_jan);
                 kafkaTemplate.send("mtc.ncr.exgRequest", "PAY" , exgRequest);
