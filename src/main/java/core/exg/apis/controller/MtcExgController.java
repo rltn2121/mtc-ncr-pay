@@ -1,8 +1,8 @@
 package core.exg.apis.controller;
 
+import core.dto.MtcExgResponse;
 import core.exg.apis.MtcExgApi;
 import core.dto.MtcExgRequest;
-import core.dto.MtcExgSnoResponse;
 import core.exg.queue.ExgKafkaProducer;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -33,20 +33,27 @@ public class MtcExgController implements MtcExgApi {
     @Override
     public ResponseEntity<?> exchange(MtcExgRequest exgRequest) {
 
-        MtcExgSnoResponse exgResponse = new MtcExgSnoResponse();
+        MtcExgResponse exgResponse = new MtcExgResponse();
 
-        // 충전 일련번호 채번 (아마 timestamp 를 붙이지 않을까 싶다)
-        // String exgAcser = exgRequest.getPayAcser();
-        String exgAcser = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        try {
+            // 충전 일련번호 채번 (아마 timestamp 를 붙이지 않을까 싶다)
+            // String exgAcser = exgRequest.getPayAcser();
+            String exgAcser = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 
-        log.info("@@영은 충전 일련번호 : {}", exgAcser);
+            log.info("@@영은 충전 일련번호 : {}", exgAcser);
 
-        // kafka send
-        exgRequest.setAcser(exgAcser);
-        exgKafkaProducer.produceMessage(exgRequest);
+            // kafka send
+            exgRequest.setAcser(exgAcser);
+            exgKafkaProducer.produceMessage(exgRequest);
 
-        exgResponse.setExgAcser(exgAcser);
+            exgResponse.setExgAcser(exgAcser);
+        }
+        catch (Exception e)
+        {
+            exgResponse.setResult(-1);
+            exgResponse.setErrStr(e.toString());
+        }
 
-        return ResponseEntity.ok(exgRequest);
+        return ResponseEntity.ok(exgResponse);
     }
 }

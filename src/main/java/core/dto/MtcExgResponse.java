@@ -9,12 +9,12 @@ import lombok.ToString;
 @ToString
 public class MtcExgResponse {
 
-    /* 성공여부 */
-    private String result;
+    /* 충전 일련번호 */
+    private String exgAcser;
 
-    /* 에러CODE */
-    private String errCode;
+    /* 결과 */
+    private Integer result;
 
     /* 에러메세지 */
-    private String errMsg;
+    private String errStr;
 }
