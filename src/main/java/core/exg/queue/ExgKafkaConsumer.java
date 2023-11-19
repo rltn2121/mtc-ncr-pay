@@ -32,7 +32,7 @@ public class ExgKafkaConsumer {
     private final MtcExgService exgService;
 
     /* 충전 요청 큐 구독 ing */
-    @KafkaListener(topics = "mtc.ncr.exgRequest")
+    @KafkaListener(topics = "mtc.ncr.exgRequest" )
     public void consumeMessage(@Payload MtcExgRequest exgReqInfo ,
                                @Header(name = KafkaHeaders.RECEIVED_KEY , required = false) String key ,
                                @Header(KafkaHeaders.RECEIVED_TOPIC ) String topic ,
