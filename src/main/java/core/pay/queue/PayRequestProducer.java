@@ -17,6 +17,6 @@ public class PayRequestProducer {
         String payAcser = mtcNcrPayRequest.getPayAcser();
         // topic , key, value
         // 결제 토픽의 key는 NEW 로 생성한다.
-        kafkaTemplate.send("mtc.ncr.core.payRequest", "NEW" , mtcNcrPayRequest);
+        kafkaTemplate.send("mtc.ncr.payRequest", "NEW" , mtcNcrPayRequest);
     }
 }
