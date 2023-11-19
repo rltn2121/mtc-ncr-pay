@@ -32,7 +32,7 @@ public class ExgKafkaConsumer {
     private final MtcExgService exgService;
 
     /* 충전 요청 큐 구독 ing */
-    @KafkaListener(topics = "mtc.ncr.exgRequest")
+    @KafkaListener(topics = "mtc.ncr.exgRequest", groupId = "practice22201653")
     public void consumeMessage(@Payload MtcExgRequest exgReqInfo ,
                                @Header(name = KafkaHeaders.RECEIVED_KEY , required = false) String key ,
                                @Header(KafkaHeaders.RECEIVED_TOPIC ) String topic ,
@@ -46,15 +46,15 @@ public class ExgKafkaConsumer {
 
         //원화 금액 정보
         SdaMainMas nowAcInfo = sdaMainMasRepository.
-                                        findById(new SdaMainMasId(exgReqInfo.getAcno() , "KRW")).orElseThrow();
-        log.info ("@@영은 현재 KRW 금액 = {}" , nowAcInfo);
+                                        findById(new SdaMainMasId(exgReqInfo.getAcno() , exgReqInfo.getCurC())).orElseThrow();
+        log.info ("@@영은 현재 {} 금액 = {}" ,exgReqInfo.getCurC(), nowAcInfo);
 
-        Double KRW_jan = nowAcInfo.getAc_jan(); // 현재 원화 금액
+        Double nowJan = nowAcInfo.getAc_jan(); // 현재 환전요청 들어온 통화의 금액
 
         try {
             // 공통 정보 셋팅
             // 현재 금액
-            resultRequest.setNujkJan(KRW_jan);
+            resultRequest.setNujkJan(nowJan);
             // 계좌번호(고객번호)
             resultRequest.setAcno(exgReqInfo.getAcno());
             // 통화코드
@@ -72,10 +72,10 @@ public class ExgKafkaConsumer {
                 resultRequest.setAprvSno(exgReqInfo.getAcser());
             }
 
-            // 해당 계좌번호의 KRW 금액 < 환전 요청 금액 이면 ERROR
-            if(KRW_jan < exgReqInfo.getTrxAmt())
+            // 해당 계좌번호의 요청받은 통화 금액 < 환전 요청 금액 이면 ERROR
+            if(nowJan < exgReqInfo.getTrxAmt())
             {
-                log.info("@@영은 충전 금액 부족 error : 현재 금액 {}, 충전 요청 금액 {}", KRW_jan, exgReqInfo.getTrxAmt());
+                log.info("@@영은 충전 금액 부족 error : 현재 금액 {}, 충전 요청 금액 {}", nowJan, exgReqInfo.getTrxAmt());
 
                 // 충전 실패
                 resultRequest.setUpmuG(4);
