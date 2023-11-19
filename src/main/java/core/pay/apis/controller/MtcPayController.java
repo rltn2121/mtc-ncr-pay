@@ -26,12 +26,22 @@ public class MtcPayController implements MtcPayApi {
 
     @Override
     public ResponseEntity<?> pay(MtcNcrPayRequest mtcNcrPayRequest) {
-        MtcNcrPayResponse  mtcNcrPayResponse= new MtcNcrPayResponse();
-        mtcNcrPayRequest.setPayAcser( LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
 
-        log.info("$$$request => " , mtcNcrPayRequest.toString());
-        kafka.produceMessage(mtcNcrPayRequest);
-        mtcNcrPayResponse.setPayAcser(mtcNcrPayRequest.getPayAcser());
+        MtcNcrPayResponse  mtcNcrPayResponse= new MtcNcrPayResponse();
+        try
+        {
+            mtcNcrPayRequest.setPayAcser( LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
+            log.info("$$$request => " , mtcNcrPayRequest.toString());
+            kafka.produceMessage(mtcNcrPayRequest);
+            mtcNcrPayResponse.setPayAcser(mtcNcrPayRequest.getPayAcser());
+            mtcNcrPayResponse.setResult(0);
+        }
+        catch (Exception e)
+        {
+            mtcNcrPayResponse.setResult(-1);
+            mtcNcrPayResponse.setErrStr(e.toString());
+        }
+
         return ResponseEntity.ok(mtcNcrPayResponse);
     }
 }
