@@ -5,14 +5,30 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     consumer:
-      group-id: practice22201785
-      enable-auto-commit: off
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: core.pay.converters.MessageDeserializer
+      consumer1:
+        group-id: practice22201785
+        enable-auto-commit: off
+        auto-offset-reset: earliest
+        key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        value-deserializer: core.pay.converters.MessageDeserializer
+      consumer2:
+        group-id: practice22201653
+        enable-auto-commit: off
+        auto-offset-reset: earliest
+        key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        value-deserializer: core.exg.converters.ExgMessageDeserializer
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://15.165.34.151:5432/mtc_db}
-    username: ${DATABASE_USERNAME:team9}
-    password: ${DATABASE_PASSWORD:cocteam9(}
+    url: jdbc:postgresql://15.165.34.151:5432/mtc_db
+    username: team9
+    password: cocteam9(
     driver-class-name: org.postgresql.Driver
+  jpa:
+    database: postgreSQL
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
 
