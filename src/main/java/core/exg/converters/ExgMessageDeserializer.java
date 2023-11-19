@@ -8,7 +8,7 @@ import org.apache.commons.lang3.SerializationException;
 import org.apache.kafka.common.serialization.Deserializer;
 
 
-public class ExgMessageDeserializer implements Deserializer<MtcNcrPayRequest> {
+public class ExgMessageDeserializer implements Deserializer<MtcExgRequest> {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
