@@ -111,7 +111,7 @@ public class PayRequestConsumer {
                 exgRequest.setAcser(payReqInfo.getPayAcser());
                 exgRequest.setPayYn("Y");
                 exgRequest.setTrxAmt(payReqInfo.getTrxAmt()-ac_jan);
-                kafkaTemplate.send("mtc.ncr.exgRequest", "PAY" , exgRequest);
+                // 2023.11.23 무한루프로 인해 임시로 막음kafkaTemplate.send("mtc.ncr.exgRequest", "PAY" , exgRequest);
                 // 업무구분 , 결제 일련번호 , 결제요청금액 , 고객번호
             }
         }
