@@ -6,6 +6,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 public interface MtcPayApi {
-    @PostMapping("")
+    @PostMapping("/pay")
     ResponseEntity<?> pay(@RequestBody MtcNcrPayRequest mtcNcrPayRequest);
 }

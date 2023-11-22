@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 public interface MtcExgApi {
 
-    @PostMapping("/charge")
+    @PostMapping("/exchange")
     ResponseEntity<?> exchange(@RequestBody MtcExgRequest exgRequest);
 }
