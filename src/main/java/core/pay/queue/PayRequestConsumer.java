@@ -90,7 +90,9 @@ public class PayRequestConsumer {
                         resultDto.setPayinfo(payReqInfo);
                         kafkaTemplate.send("mtc.ncr.result", "FAIL", resultDto);
                     }
-                } else //결제요청금액이 잔액보다 큰 경우
+                }
+                /* 2023.11.23 무한루프로 인해 임시로 막음
+                else //결제요청금액이 잔액보다 큰 경우
                 {
                     // 충전 큐에 넣는다.
                     MtcExgRequest exgRequest = new MtcExgRequest();
@@ -103,7 +105,33 @@ public class PayRequestConsumer {
                     kafkaTemplate.send("mtc.ncr.exgRequest", "PAY", exgRequest);
                     // 업무구분 , 결제 일련번호 , 결제요청금액 , 고객번호
                 }
-            } catch (Exception e) {
+
+<<<<<<< HEAD
+                catch(Exception e){
+                    log.info("$$$withdraw error : {}" , e.toString());
+                    //실패했으면 result 큐에 넣어줄 값 셋팅한다.
+                    resultDto.setUpmuG(3);
+                    resultDto.setNujkJan(ac_jan);
+                    resultDto.setErrMsg(e.toString());
+                    resultDto.setPayinfo(payReqInfo);
+                    kafkaTemplate.send("mtc.ncr.result", "FAIL", resultDto);
+                }
+            }
+            else //결제요청금액이 잔액보다 큰 경우
+            {
+                // 충전 큐에 넣는다.
+                MtcExgRequest exgRequest = new MtcExgRequest();
+                exgRequest.setPayInfo(payReqInfo);
+                exgRequest.setAcno(payReqInfo.getAcno());
+                exgRequest.setCurC(payReqInfo.getCurC());
+                exgRequest.setAcser(payReqInfo.getPayAcser());
+                exgRequest.setPayYn("Y");
+                exgRequest.setTrxAmt(payReqInfo.getTrxAmt()-ac_jan);
+                kafkaTemplate.send("mtc.ncr.exgRequest", "PAY" , exgRequest);
+                // 업무구분 , 결제 일련번호 , 결제요청금액 , 고객번호
+======= */
+            }
+            catch (Exception e) {
                 log.info("$$$$$ 결제하다가 에러난다 : {}", e.toString());
                 log.info("$$$withdraw error : {}", e.toString());
                 //실패했으면 result 큐에 넣어줄 값 셋팅한다.
@@ -112,6 +140,7 @@ public class PayRequestConsumer {
                 resultDto.setErrMsg(e.toString());
                 resultDto.setPayinfo(payReqInfo);
                 kafkaTemplate.send("mtc.ncr.result", "FAIL", resultDto);
+//>>>>>>> refs/remotes/origin/main
             }
             */
         }
