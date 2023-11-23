@@ -1,4 +1,4 @@
-package core.pay.apis;
+package core.apis;
 
 import core.dto.MtcNcrPayRequest;
 import org.springframework.http.ResponseEntity;

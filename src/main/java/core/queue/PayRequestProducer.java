@@ -1,4 +1,4 @@
-package core.pay.queue;
+package core.queue;
 
 import lombok.RequiredArgsConstructor;
 import core.dto.MtcNcrPayRequest;

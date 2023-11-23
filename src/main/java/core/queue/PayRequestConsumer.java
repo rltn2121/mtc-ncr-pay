@@ -1,6 +1,5 @@
-package core.pay.queue;
+package core.queue;
 
-import core.dto.MtcExgRequest;
 import core.dto.MtcNcrPayResponse;
 import core.dto.MtcResultRequest;
 import core.service.MtcPayService;
@@ -8,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import core.Repository.SdaMainMasRepository;
 import core.domain.SdaMainMas;
 import core.dto.MtcNcrPayRequest;
-import core.domain.SdaMainMasId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -55,6 +53,17 @@ public class PayRequestConsumer {
         log.info("############구독시작한다###############{}" , payReqInfo.toString());
         MtcResultRequest resultDto = new MtcResultRequest();
         MtcNcrPayResponse payResponse = new MtcNcrPayResponse();
+        SdaMainMas sdaMainMas = WebClient.create("mtc-ncr-com-svc.coc-mtc.svc.cluster.local:8080/sdaMainMas/")
+                        .get()
+                                .uri("/sdaMainMas" + payReqInfo.getAcno())
+                                        .retrieve()
+                                                .bodyToMono(SdaMainMas.class)
+                                                        .block();
+
+        log.info("sda_main_mas 잘 읽어오나 보자 :{}" , sdaMainMas.toString());
+
+
+        /*
         SdaMainMas tempAcInfo = sdaMainMasRepository.
                 findById(new SdaMainMasId(payReqInfo.getAcno(), payReqInfo.getCurC())).orElseThrow();
         Double ac_jan = tempAcInfo.getAc_jan();
@@ -126,5 +135,7 @@ public class PayRequestConsumer {
             resultDto.setPayinfo(payReqInfo);
             kafkaTemplate.send("mtc.ncr.result", "FAIL" , resultDto);
         }
+
+         */
     }
 }

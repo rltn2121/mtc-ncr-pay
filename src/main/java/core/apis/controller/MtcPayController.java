@@ -1,10 +1,10 @@
-package core.pay.apis.controller;
+package core.apis.controller;
 
+import core.apis.MtcPayApi;
+import core.queue.PayRequestProducer;
 import lombok.RequiredArgsConstructor;
-import core.pay.apis.MtcPayApi;
 import core.dto.MtcNcrPayRequest;
 import core.dto.MtcNcrPayResponse;
-import core.pay.queue.PayRequestProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
