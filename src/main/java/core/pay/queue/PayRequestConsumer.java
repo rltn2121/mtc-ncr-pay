@@ -35,19 +35,6 @@ public class PayRequestConsumer {
     private final SdaMainMasRepository sdaMainMasRepository;
     private final MtcPayService mtcPayService;
 
-    public String getTimeString()
-    {
-        LocalDate now = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-        String formatedNow = now.format(formatter);
-
-        LocalTime now2 = LocalTime.now();         // 현재시간 출력
-        DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("HHmmss");
-        String formatedNow2 = now2.format(formatter2);
-
-        return formatedNow+formatedNow2;
-    }
-
     @KafkaListener(topics = "mtc.ncr.payRequest", groupId="practice22201653")
     public void consumeMessage(@Payload MtcNcrPayRequest payReqInfo ,
                                @Header(name = KafkaHeaders.RECEIVED_KEY , required = false) String key ,
@@ -59,6 +46,10 @@ public class PayRequestConsumer {
         try {
             log.info("############구독시작한다###############{}", payReqInfo.toString());
             MtcNcrPayResponse payResponse = new MtcNcrPayResponse();
+
+
+
+            /*
             SdaMainMas tempAcInfo = sdaMainMasRepository.
                     findById(new SdaMainMasId(payReqInfo.getAcno(), payReqInfo.getCurC())).orElseThrow();
             Double ac_jan = tempAcInfo.getAc_jan();
@@ -122,6 +113,7 @@ public class PayRequestConsumer {
                 resultDto.setPayinfo(payReqInfo);
                 kafkaTemplate.send("mtc.ncr.result", "FAIL", resultDto);
             }
+            */
         }
         catch (NoSuchElementException e)
         {
