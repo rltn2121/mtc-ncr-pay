@@ -10,7 +10,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebClientConfiguration implements WebMvcConfigurer {
     @Bean
     public WebClient webClient() {
-        return WebClient.builder().build();
+        return WebClient.builder().baseUrl("http://mtc-ncr-com-svc.coc-mtc.svc.cluster.local:8080").build();
     }
 
     @Override
