@@ -58,7 +58,7 @@ public class PayRequestConsumer {
         MtcNcrPayResponse payResponse = new MtcNcrPayResponse();
         SdaMainMas sdaMainMas = WebClient.create("http://mtc-ncr-com-svc.coc-mtc.svc.cluster.local:8080")
                         .get()
-                                .uri("/sdaMainMas/" + payReqInfo.getAcno())
+                                .uri("/sdaMainMas/" + payReqInfo.getAcno() + "?cur_c=KRW")
                                         .retrieve()
                                                 .bodyToMono(SdaMainMas.class)
                                                         .block();
