@@ -10,6 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @JsonIgnoreProperties (ignoreUnknown = true)
+@AllArgsConstructor
 public class MtcExgRequest{
 
     /* 결제여부             */

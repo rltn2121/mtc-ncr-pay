@@ -8,7 +8,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MtcNcrPayRequest {
-    //고객번호 , 통화코드 , 거래처 , 금액 , 일시
+    //gid , 고객번호 , 통화코드 , 거래처 , 금액 , 일시
+    private String gid;
     private String acno ;
     private String curC;
     private String trxPlace;
