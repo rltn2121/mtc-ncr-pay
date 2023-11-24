@@ -53,9 +53,9 @@ public class PayRequestConsumer {
         log.info("############구독시작한다###############{}" , payReqInfo.toString());
         MtcResultRequest resultDto = new MtcResultRequest();
         MtcNcrPayResponse payResponse = new MtcNcrPayResponse();
-        SdaMainMas sdaMainMas = WebClient.create("mtc-ncr-com-svc.coc-mtc.svc.cluster.local:8080/sdaMainMas")
+        SdaMainMas sdaMainMas = WebClient.create("http://mtc-ncr-com-svc.coc-mtc.svc.cluster.local:8080")
                         .get()
-                                .uri("/"+ payReqInfo.getAcno())
+                                .uri("/sdaMainMas/" + payReqInfo.getAcno())
                                         .retrieve()
                                                 .bodyToMono(SdaMainMas.class)
                                                         .block();
