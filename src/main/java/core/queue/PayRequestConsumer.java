@@ -9,6 +9,7 @@ import core.domain.SdaMainMas;
 import core.dto.MtcNcrPayRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -26,6 +27,8 @@ import java.time.format.DateTimeFormatter;
 public class PayRequestConsumer {
     private static final Logger log = LoggerFactory.getLogger(PayRequestProducer.class);
     private final KafkaTemplate<String, Object> kafkaTemplate;
+
+    @Autowired
     private final WebClient webClient;
     private final SdaMainMasRepository sdaMainMasRepository;
     private final MtcPayService mtcPayService;
