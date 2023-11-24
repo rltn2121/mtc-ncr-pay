@@ -48,7 +48,7 @@ public class PayRequestConsumer {
             //sda_main_mas 테이블을 내부연동을 통해 읽어온다.
             SdaMainMas sdaMainMas = WebClient.create("http://mtc-ncr-com-svc.coc-mtc.svc.cluster.local:8080")
                             .get()
-                                    .uri("/sdaMainMas/" + payReqInfo.getAcno() + "?cur_c" + payReqInfo.getCurC())
+                                    .uri("/sdaMainMas/" + payReqInfo.getAcno() + "?cur_c=" + payReqInfo.getCurC())
                                             .retrieve()
                                                     .bodyToMono(SdaMainMas.class)
                                                             .block();
