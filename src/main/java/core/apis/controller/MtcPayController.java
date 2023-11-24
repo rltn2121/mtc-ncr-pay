@@ -23,7 +23,6 @@ import java.time.format.DateTimeFormatter;
 public class MtcPayController implements MtcPayApi {
 
     private final PayRequestProducer kafka;
-    private final WebClient webClient;
     private final static Logger log = LoggerFactory.getLogger(MtcPayController.class);
 
     @Override
@@ -50,7 +49,7 @@ public class MtcPayController implements MtcPayApi {
     }
 
     private String callGidApi() {
-        return webClient
+        return WebClient.create("http://mtc-com-log-svc.coc-mtc.svc.cluster.local:8080")
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/log/mkgid")
