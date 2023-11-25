@@ -71,7 +71,7 @@ public class PayRequestConsumer {
                 // 잔액update 큐에 넣는다.
                 MtcNcrUpdateMainMasRequestSub mainMasRequestSub
                         = new MtcNcrUpdateMainMasRequestSub(-1 /*결제니까 요청금액을 음수로 set*/,
-                            payReqInfo.getTrxAmt() , payReqInfo.getCurC() , payReqInfo.getTrxDt() , payReqInfo.getPayAcser());
+                            payReqInfo.getTrxAmt() , payReqInfo.getCurC() , payReqInfo.getTrxDt());
 
                 // 결제요청 list 에 set
                 List<MtcNcrUpdateMainMasRequestSub> mainMasRequestSubList = new ArrayList<>();
@@ -80,7 +80,7 @@ public class PayRequestConsumer {
                 // comRequest 토픽에 set
                 MtcNcrUpdateMainMasRequest mainMasRequest =
                         new MtcNcrUpdateMainMasRequest(
-                                payReqInfo.getAcno(),payReqInfo.getGid(), payReqInfo.getPayAcser() , mainMasRequestSubList , payReqInfo,  "PAY");
+                                payReqInfo.getAcno(),payReqInfo.getGid(), payReqInfo.getPayAcser() , mainMasRequestSubList , payReqInfo,   "PAY");
 
                 log.info("$$ 계좌잔액이 결제요청보다 작거나 같으므로 결제를 시도한다\n==>" , mainMasRequest.toString());
                 kafkaTemplate.send("mtc.ncr.comRequest", "PAY" , mainMasRequest);
@@ -93,7 +93,7 @@ public class PayRequestConsumer {
             MtcResultRequest resultDto
                     = new MtcResultRequest(payReqInfo.getAcno() , payReqInfo.getTrxDt() , payReqInfo.getCurC()
                     , 2 /* 업무구분 2 : 결제 실패*/ , payReqInfo.getPayAcser() , payReqInfo.getTrxAmt() ,
-                    0.0 , "결제시 오류가 발생 - "+e.toString() , payReqInfo , payReqInfo.getGid() ) ;
+                    0.0 , "결제시 오류가 발생 - "+e.toString() , payReqInfo , "Y" , payReqInfo.getGid() ) ;
             kafkaTemplate.send("mtc.ncr.result", "FAIL" , resultDto);
         }
     }

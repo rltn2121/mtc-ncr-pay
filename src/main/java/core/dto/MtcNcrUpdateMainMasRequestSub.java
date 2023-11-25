@@ -14,5 +14,4 @@ public class MtcNcrUpdateMainMasRequestSub {
     private double trxAmt; // 거래금액
     private String cur_c; // 통화코드
     private String trxdt;
-    private String payAcser;
 }

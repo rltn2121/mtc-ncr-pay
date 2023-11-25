@@ -21,6 +21,7 @@ public class MtcResultRequest {
 
     // 2. 결제->충전->결과로 들어오는 경우 다시 결제를 태우기 위해 해당 정보를 들고다닌다.
     private MtcNcrPayRequest payinfo; //결제정보
+    private String payYn ; // 결제여부
 
     // 3. 로그 처리를 위한 gid
     private String gid; // 글로벌아이디
