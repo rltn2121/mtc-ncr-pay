@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @RestController
-//@RequestMapping(value="", method= RequestMethod.POST, consumes="application/json;") // 기수: MtcPayApi 인터페이스에서 @PostMapping으로 경로 지정해줬기 때문에 이거 없어도 돌아감
 @RequiredArgsConstructor
 public class MtcPayController implements MtcPayApi {
 
@@ -34,6 +33,7 @@ public class MtcPayController implements MtcPayApi {
         try
         {
             mtcNcrPayRequest.setPayAcser( LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
+            mtcNcrPayRequest.setGid(gid);
             log.info("$$$request => " , mtcNcrPayRequest.toString());
             kafka.produceMessage(mtcNcrPayRequest);
             mtcNcrPayResponse.setPayAcser(mtcNcrPayRequest.getPayAcser());
