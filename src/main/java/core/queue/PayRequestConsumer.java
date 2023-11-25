@@ -80,7 +80,7 @@ public class PayRequestConsumer {
                 // comRequest 토픽에 set
                 MtcNcrUpdateMainMasRequest mainMasRequest =
                         new MtcNcrUpdateMainMasRequest(
-                                payReqInfo.getAcno(),payReqInfo.getGid(), payReqInfo.getPayAcser() , mainMasRequestSubList , null,  "PAY");
+                                payReqInfo.getAcno(),payReqInfo.getGid(), payReqInfo.getPayAcser() , mainMasRequestSubList , payReqInfo,  "PAY");
 
                 log.info("$$ 계좌잔액이 결제요청보다 작거나 같으므로 결제를 시도한다\n==>" , mainMasRequest.toString());
                 kafkaTemplate.send("mtc.ncr.comRequest", "PAY" , mainMasRequest);
